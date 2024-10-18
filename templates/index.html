@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyển đổi Văn bản thành Giọng nói</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Thiết lập màu sắc chủ đạo của MB Bank Priority */
+        body {
+            background-color: #f2f3f7;
+            padding-top: 50px;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            background: linear-gradient(145deg, #0d1b5e, #3c5aa6);
+            padding: 30px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.15);
+            border-radius: 15px;
+            color: #ffffff;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffcc00;
+            text-align: center;
+        }
+        label {
+            color: #ffcc00;
+            font-weight: bold;
+        }
+        .custom-file-label {
+            color: #ffffff;
+            background-color: #0d1b5e;
+            border: 2px solid #ffcc00;
+            cursor: pointer;
+        }
+        .custom-file-label::after {
+            content: "Chọn tệp";
+            color: #ffcc00;
+            background-color: #0d1b5e;
+        }
+        .custom-file-input:focus ~ .custom-file-label {
+            border-color: #ffcc00;
+            box-shadow: none;
+        }
+        .btn-primary {
+            background-color: #ffcc00;
+            border: none;
+            color: #0d1b5e;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            background-color: #ffd633;
+        }
+        .progress {
+            height: 20px;
+            margin-top: 20px;
+            background-color: #3c5aa6;
+        }
+        .progress-bar {
+            background-color: #ffcc00;
+        }
+        .audio-player {
+            margin-top: 20px;
+            color: #ffcc00;
+        }
+        .remove-file-btn {
+            display: none;
+            cursor: pointer;
+            color: #ffcc00;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .remove-file-btn:hover {
+            text-decoration: underline;
+        }
+        .audio-control-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .audio-control-container audio {
+            width: 100%;
+        }
+        #download-link {
+            background-color: #ffcc00;
+            color: #0d1b5e;
+            border: none;
+            font-weight: bold;
+        }
+        #download-link:hover {
+            background-color: #ffd633;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chuyển đổi Văn bản thành Giọng nói</h1>
+        <form id="upload-form" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Tải lên tệp Word/PDF</label>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="file" name="file">
+                    <label class="custom-file-label" for="file">Chọn tệp</label>
+                </div>
+                <span class="remove-file-btn">Xóa tệp đã chọn</span>
+            </div>
+            <div class="form-group">
+                <label for="text_input">Hoặc nhập văn bản thủ công</label>
+                <textarea class="form-control" id="text_input" name="text_input" rows="5" placeholder="Nhập văn bản tại đây..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Chuyển đổi</button>
+        </form>
+
+        <div class="progress" style="display: none;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;"></div>
+        </div>
+
+        <div class="audio-player" style="display: none;">
+            <h5>Nghe Audio</h5>
+            <div class="audio-control-container">
+                <audio controls id="audio-player"></audio>
+                <a href="#" id="download-link" class="btn">Tải về</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var progressInterval;
+
+            $('#file').on('change', function() {
+                var fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').html(fileName);
+                $('.remove-file-btn').show();
+                $('#text_input').val(''); // Clear text input when a file is selected
+            });
+
+            $('.remove-file-btn').on('click', function() {
+                $('#file').val('');
+                $('.custom-file-label').html('Chọn tệp');
+                $(this).hide();
+                $('#text_input').val(''); // Clear text input when file is removed
+            });
+
+            $('#upload-form').on('submit', function (e) {
+                e.preventDefault();
+                $('.progress').show();
+                $('.audio-player').hide();
+                $('.progress-bar').css('width', '0%');
+
+                var formData = new FormData(this);
+                progressInterval = setInterval(function() {
+                    var width = $('.progress-bar').width() / $('.progress').width() * 100;
+                    if (width < 95) {
+                        $('.progress-bar').css('width', (width + 1) + '%');
+                    }
+                }, 100);
+
+                $.ajax({
+                    url: '/upload',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        clearInterval(progressInterval);
+                        $('.progress-bar').css('width', '100%');
+                        $('#audio-player').attr('src', '/play/' + data.audio_file + '?t=' + new Date().getTime());
+                        $('#download-link').attr('href', '/download/' + data.audio_file + '?t=' + new Date().getTime());
+                        $('.audio-player').show();
+                    },
+                    error: function () {
+                        clearInterval(progressInterval);
+                        $('.progress-bar').css('width', '0%');
+                        alert('Có lỗi xảy ra trong quá trình xử lý.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

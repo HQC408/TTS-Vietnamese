@@ -1,0 +1,12 @@
+Upload a Word/PDF File,text_input,Generated Speech,flag,username,timestamp
+flagged\Upload a WordPDF File\90fb9bce0073b99b24fa\1.pdf,,,,,2024-08-29 15:05:26.159188
+flagged\Upload a WordPDF File\4796cb6f34dfa4ee2d48\1.pdf,,flagged\Generated Speech\e08c6b65ee3f63ed854e\output.wav,,,2024-08-29 15:30:09.127912
+,"1.1 Mô hình HiFi-GAN
+1.1.1 Kiến trúc HiFi-GAN
+HiFi-GAN là một mô hình Generative Adversarial Network (GAN) được thiết kế để chuyển đổi mel-spectrogram thành sóng âm thanh với chất lượng cao. Mô hình này bao gồm hai thành phần chính:
+
+Generator: Bộ sinh (Generator) của HiFi-GAN học cách tạo ra sóng âm thanh từ mel-spectrogram. Nó sử dụng một loạt các khối Residual Block để tăng cường khả năng tổng hợp của mô hình.
+Discriminator: Bộ phân biệt (Discriminator) có nhiệm vụ phân biệt giữa sóng âm thanh thật và sóng âm thanh do Generator tạo ra, giúp cải thiện chất lượng đầu ra thông qua quá trình học đối kháng.
+",flagged\Generated Speech\532294fb4c326b263d07\output.wav,,,2024-09-04 02:11:15.356797
+flagged\Upload a WordPDF File\9614ffe9d18a7ae88f88\1.docx,,,,,2024-09-04 03:32:43.906516
+flagged\Upload a WordPDF File\313319f2e1538340081d\NguyenLyModel.docx,,,,,2024-09-04 06:59:58.700194
